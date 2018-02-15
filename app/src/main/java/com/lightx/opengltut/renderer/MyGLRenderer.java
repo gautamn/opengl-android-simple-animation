@@ -10,18 +10,34 @@ import javax.microedition.khronos.opengles.GL10;
 
 public class MyGLRenderer implements GLSurfaceView.Renderer {
 
-    private Square mSquare;
+    private Square mSquareLeftToRightTop;
+    private Square mSquareUpToDownTop;
+
+    private Square mSquareRightToLeftBottom;
+    private Square mSquareDownToUpBottom;
+
+    private Square mSquareRotating;
+
     private final float[] mMVPMatrix = new float[16];
     private final float[] mProjectionMatrix = new float[16];
     private final float[] mViewMatrix = new float[16];
     private float mAngle;
-    private Square mSquare2;
+
+    private static float square_1_coords[] = {
+            -0.05f,  0.05f, 0.0f,   // top left
+            -0.05f, -0.05f, 0.0f,   // bottom left
+            0.05f, -0.05f, 0.0f,   // bottom right
+            0.05f,  0.05f, 0.0f  // top right
+    };
 
     @Override
     public void onSurfaceCreated(GL10 unused, javax.microedition.khronos.egl.EGLConfig config) {
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        mSquare = new Square();
-        mSquare2 = new Square();
+        mSquareLeftToRightTop = new Square(square_1_coords);
+        mSquareUpToDownTop = new Square(square_1_coords);
+        mSquareRightToLeftBottom = new Square(square_1_coords);
+        mSquareDownToUpBottom = new Square(square_1_coords);
+        mSquareRotating = new Square(square_1_coords);
     }
 
     @Override
@@ -31,36 +47,40 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         Matrix.frustumM(mProjectionMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
     }
 
-   /* @Override
-    public void onDrawFrame(GL10 unused) {
-        float[] scratch = new float[16];
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-        Matrix.setLookAtM(mViewMatrix, 0, 0, 0, -3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
-        Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
-        mSquare.draw(mMVPMatrix);
-    }*/
-
-   private static float x = 0.0f;
-   private static boolean movingRight = false;
-    private static boolean movingUp = false;
-    private static float y = 0.0f;
+    private static float x = 0.0f;
+    private static boolean movingRight = false;
 
     @Override
     public void onDrawFrame(GL10 unused) {
+
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         Matrix.setLookAtM(mViewMatrix, 0, 0, 0, -3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
         Matrix.translateM(mViewMatrix, 0, x, 0.5f, 0);
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
-        mSquare.draw(mMVPMatrix);
-
+        mSquareLeftToRightTop.draw(mMVPMatrix, 0);
         x=x+getDeltaX();
 
         Matrix.setLookAtM(mViewMatrix, 0, 0, 0, -3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
         Matrix.translateM(mViewMatrix, 0, 0.5f, y, 0);
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
-        mSquare2.draw(mMVPMatrix);
+        mSquareUpToDownTop.draw(mMVPMatrix, 1);
         y=y+getDeltaY();
+
+        Matrix.setLookAtM(mViewMatrix, 0, 0, 0, -3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+        Matrix.translateM(mViewMatrix, 0, -x, -0.5f, 0);
+        Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
+        mSquareLeftToRightTop.draw(mMVPMatrix, 2);
+
+        Matrix.setLookAtM(mViewMatrix, 0, 0, 0, -3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+        Matrix.translateM(mViewMatrix, 0, -0.5f, -y, 0);
+        Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
+        mSquareUpToDownTop.draw(mMVPMatrix, 3);
+
+        drawRotatingSquare(unused);
     }
+
+    private static float y = 0.0f;
+    private static boolean movingUp = false;
 
     private static float getDeltaX(){
 
@@ -94,12 +114,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
    /**Rotation of two squares*/
 
-    /*private float[] mRotationMatrix = new float[16];
-    public void onDrawFrame(GL10 unused) {
+    private float[] mRotationMatrix = new float[16];
+    public void drawRotatingSquare(GL10 unused) {
 
         float[] scratch = new float[16];
-        // Draw background color
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         // Set the camera position (View matrix)
         Matrix.setLookAtM(mViewMatrix, 0, 0, 0, -3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
 
@@ -107,39 +125,17 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
         Matrix.setRotateM(mRotationMatrix, 0, mAngle, 0, 0, 1.0f);
         Matrix.multiplyMM(scratch, 0, mMVPMatrix, 0, mRotationMatrix, 0);
-        mSquare.draw(scratch);
+        mSquareRotating.draw(scratch, 2);
 
         // Set the camera position (View matrix)
         scratch = new float[16];
         Matrix.setRotateM(mRotationMatrix, 0, -mAngle*4, 0.0f, 0.0f, 1.0f);
         Matrix.multiplyMM(scratch, 0, mMVPMatrix, 0, mRotationMatrix, 0);
-        mSquare.draw(scratch);
+        mSquareRotating.draw(scratch, 3);
 
         mAngle+=.4;
 
-    }*/
-
-
-
-
-   /* private float[] mTranslationalMatrix = new float[16];
-    public void onDrawFrame(GL10 unused) {
-
-        *//*Drawing pink square*//*
-        float[] scratch = new float[16];
-        // Draw background color
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-        // Set the camera position (View matrix)
-        Matrix.setLookAtM(mViewMatrix, 0, 0, 0, -3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
-
-        // Calculate the projection and view transformation
-       // Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
-        Matrix.translateM(mViewMatrix, 0, 0.2f, 0.1f, 0);
-        Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
-        mSquare.draw(scratch);
-        //mAngle+=.4;
-
-    }*/
+    }
 
     public static int loadShader(int type, String shaderCode){
         int shader = GLES20.glCreateShader(type);
