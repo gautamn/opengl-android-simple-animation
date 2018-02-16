@@ -29,7 +29,7 @@ public class TextureUtil {
         }
         if (textureHandle[0] == 0) {
             throw new RuntimeException("Error loading texture.");
-        }else Log.d("Texture", "texture loaded successfully.");
+        }else Log.d("Texture", "texture with resourceId="+ resourceId+" loaded successfully.");
 
         return textureHandle[0];
     }

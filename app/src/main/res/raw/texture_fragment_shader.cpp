@@ -5,5 +5,5 @@ varying vec2 v_TexCoordinate;
 void main(){
 
      lowp vec4 textureColor = texture2D(u_Texture, v_TexCoordinate);
-     gl_FragColor = vec4((textureColor.rgb + vec3(0.1)), textureColor.w);
+     gl_FragColor = vec4((textureColor.rgb + vec3(0.3)), textureColor.w);
 }
