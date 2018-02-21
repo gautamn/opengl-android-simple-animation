@@ -53,6 +53,7 @@ public class LayersActivity extends Activity {
             // and other input controls. In this case, you are only
             // interested in events where the touch position changed.
 
+            ///x, y, mPreviousX, mPreviousY are phone pixel coordinates
             float x = e.getX();
             float y = e.getY();
 
