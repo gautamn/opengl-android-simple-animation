@@ -91,16 +91,9 @@ public class SlidingLayersMultiTouchActivity extends Activity {
                 case MotionEvent.ACTION_POINTER_UP:
                     ptrID2 = INVALID_POINTER_ID;
                     break;
-               /* case MotionEvent.ACTION_UP:
-                    //Log.d("SMULTITACTILITY", "action up event clicked");
+                case MotionEvent.ACTION_UP:
                     ptrID1 = INVALID_POINTER_ID;
                     break;
-
-                case MotionEvent.ACTION_CANCEL:
-                   // Log.d("SMULTITACTILITY", "action cancel event clicked");
-                    ptrID1 = INVALID_POINTER_ID;
-                    ptrID2 = INVALID_POINTER_ID;
-                    break;*/
             }
 
             return true;

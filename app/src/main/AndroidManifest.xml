@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".activity.SlidingLayersMultiTouchActivity">
+        <activity android:name=".activity.GestureActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
