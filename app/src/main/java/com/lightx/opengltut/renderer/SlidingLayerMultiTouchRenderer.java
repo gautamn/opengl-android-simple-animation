@@ -4,7 +4,6 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
-import android.util.Log;
 
 import com.lightx.opengltut.R;
 import com.lightx.opengltut.shape.Layer;
@@ -13,12 +12,11 @@ import com.lightx.opengltut.util.ShaderUtil;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class LayerRenderer implements GLSurfaceView.Renderer {
+public class SlidingLayerMultiTouchRenderer implements GLSurfaceView.Renderer {
 
     private Layer baseLayer;
     private Layer topLayer;
     private Context mActivityContext;
-    private float mAngle;
 
     private static float square_1_coords[] = {
             -1f,  1f, 0.0f,   // top left
@@ -37,7 +35,17 @@ public class LayerRenderer implements GLSurfaceView.Renderer {
     private float[] mProjectionMatrix = new float[16];
     private float[] mViewMatrix = new float[16];
 
-    public LayerRenderer(final Context activityContext){
+    public float getmAngle() {
+        return mAngle;
+    }
+
+    public void setmAngle(float mAngle) {
+        this.mAngle = mAngle;
+    }
+
+    private float mAngle;
+
+    public SlidingLayerMultiTouchRenderer(final Context activityContext){
         mActivityContext = activityContext;
     }
 
@@ -59,6 +67,27 @@ public class LayerRenderer implements GLSurfaceView.Renderer {
 
     private float[] mRotationMatrix = new float[16];
 
+    public float getX() {
+        return x;
+    }
+
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    public float getY() {
+        return y;
+    }
+
+    public void setY(float y) {
+        this.y = y;
+    }
+
+    private static float x;
+    private static float y;
+    private static boolean movingRight = false;
+    private static boolean movingUp = false;
+
     @Override
     public void onDrawFrame(GL10 gl10) {
         float[] mMVPMatrix = new float[16];
@@ -70,27 +99,23 @@ public class LayerRenderer implements GLSurfaceView.Renderer {
         mMVPMatrix = new float[16];
         Matrix.setLookAtM(mViewMatrix, 0, 0, 0, 5f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
-        Matrix.setRotateM(mRotationMatrix, 0, mAngle, 0, 0, 1.0f);
+        Matrix.setRotateM(mRotationMatrix, 0, -mAngle, 0, 0, 1.0f);
         Matrix.multiplyMM(mMVPMatrix, 0, mMVPMatrix, 0, mRotationMatrix, 0);
-        topLayer.draw(mMVPMatrix);
-
-        mAngle+=.4;
+        topLayer.draw(mMVPMatrix, square_2_coords);
     }
 
-    /**
-     * Returns the rotation angle of the triangle shape (mTriangle).
-     *
-     * @return - A float representing the rotation angle.
-     */
-    public float getAngle() {
-        return mAngle;
+    public void changeVertexBuffer(float x, float y) {
+
+        for(int i=0; i< square_2_coords.length; ){
+            square_2_coords[i] = square_2_coords[i] + x;
+            i = i + 3;
+        }
+
+        for(int i=1; i< square_2_coords.length; ){
+            square_2_coords[i] = square_2_coords[i] + y;
+            i = i + 3;
+        }
     }
 
-    /**
-     * Sets the rotation angle of the triangle shape (mTriangle).
-     */
-    public void setAngle(float angle) {
-        mAngle = angle;
-        Log.d("LayerRenderer", "setAngle: setting angle to : " +angle);
-    }
+
 }
