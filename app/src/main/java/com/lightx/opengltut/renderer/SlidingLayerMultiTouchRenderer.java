@@ -17,6 +17,7 @@ public class SlidingLayerMultiTouchRenderer implements GLSurfaceView.Renderer {
     private Layer baseLayer;
     private Layer topLayer;
     private Context mActivityContext;
+    public static int actionType=-1; //1 for drag
 
     private static float square_1_coords[] = {
             -1f,  1f, 0.0f,   // top left
@@ -99,7 +100,7 @@ public class SlidingLayerMultiTouchRenderer implements GLSurfaceView.Renderer {
         mMVPMatrix = new float[16];
         Matrix.setLookAtM(mViewMatrix, 0, 0, 0, 5f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
-        Matrix.setRotateM(mRotationMatrix, 0, -mAngle, 0, 0, 1.0f);
+        Matrix.setRotateM(mRotationMatrix, 0, mAngle, 0, 0, 1.0f);
         Matrix.multiplyMM(mMVPMatrix, 0, mMVPMatrix, 0, mRotationMatrix, 0);
         topLayer.draw(mMVPMatrix, square_2_coords);
     }
