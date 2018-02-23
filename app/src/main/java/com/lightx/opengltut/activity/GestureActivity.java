@@ -68,11 +68,7 @@ public class GestureActivity extends Activity {
                     ptrID1 = e.getPointerId(0);
                     sX = e.getX(e.findPointerIndex(ptrID1));
                     sY = e.getY(e.findPointerIndex(ptrID1));
-                    ////////////////////////////////
                     start.set(x, y);
-                    //mode = DRAG;
-                    //lastEvent = null;
-
                     break;
 
                 case MotionEvent.ACTION_POINTER_DOWN:
@@ -109,12 +105,12 @@ public class GestureActivity extends Activity {
                                 Log.d("GestureActivity", " scale="+scale);
                                 float scaleFactorX = scale;
                                 float scaleFactorY = scale;
-                                mRenderer.scaleVertexBuffer(scaleFactorX, scaleFactorY);
-                                requestRender();
+                                //mRenderer.scaleVertexBuffer(scaleFactorX, scaleFactorY);
+                                //requestRender();
                             }
-                           // mRenderer.actionType = 2;
-                           // mRenderer.setmAngle(mAngle);
-                            // requestRender();
+                           mRenderer.actionType = 2;
+                           mRenderer.setmAngle(mAngle);
+                           requestRender();
                         }
                     }else if(ptrID1 != INVALID_POINTER_ID){ //DRAG CASE
                         /*Coordinate of mouse touch point in OpenGL coordinate system*/
@@ -130,13 +126,14 @@ public class GestureActivity extends Activity {
                             mRenderer.actionType = 1;
                             dx = ((x - mPreviousX)*2)/X_SCALE_FACTOR;
                             dy = ((y - mPreviousY)*2)/Y_SCALE_FACTOR;
-                            Log.d("GestureActivity", "onTouchEvent: distanceBetweenCenterAndCurrentPoint=="
+                          /*  Log.d("GestureActivity", "onTouchEvent: distanceBetweenCenterAndCurrentPoint=="
                                     +distanceBetweenCenterAndCurrentPoint+ " topLayerCenter.x="+topLayerCenter.x
-                            +" topLayerCenter.y="+topLayerCenter.y);
-                            //mRenderer.changeVertexBuffer(topLayerCenter, dx, -dy);
-                            mRenderer.changeVertexBuffer(dx, -dy);
+                            +" topLayerCenter.y="+topLayerCenter.y);*/
+
+                            //mRenderer.changeVertexBuffer(dx, -dy);
+                            mRenderer.changeVertexBufferBasedOnCenter(topLayerCenter);
                             requestRender();
-                            topLayerCenter.set(topLayerCenter.x+dx, topLayerCenter.y-dy);
+                            topLayerCenter.set(x_cor, y_cor);
                         }
                     }
                     mPreviousX = x;

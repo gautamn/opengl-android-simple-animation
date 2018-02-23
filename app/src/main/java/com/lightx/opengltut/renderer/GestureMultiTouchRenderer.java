@@ -110,7 +110,7 @@ public class GestureMultiTouchRenderer implements GLSurfaceView.Renderer {
         if(actionType==1) translate(mMVPMatrix);
         else if (actionType==2) rotate(mMVPMatrix);
         else if(actionType==3) scale(mMVPMatrix);
-        else {
+        else if(actionType==-1){
             Matrix.setLookAtM(mViewMatrix, 0, 0, 0, 5f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
             Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
         }
@@ -143,6 +143,22 @@ public class GestureMultiTouchRenderer implements GLSurfaceView.Renderer {
 
         square_2_coords[9] = topLayerCenter.x + dx + 0.25f;
         square_2_coords[10] = topLayerCenter.y + dy + 0.25f;
+
+    }
+
+    public void changeVertexBufferBasedOnCenter(PointF topLayerCenter) {
+
+        square_2_coords[0] = (topLayerCenter.x - 0.25f);
+        square_2_coords[1] = topLayerCenter.y + 0.25f;
+
+        square_2_coords[3] = topLayerCenter.x - 0.25f;
+        square_2_coords[4] = topLayerCenter.y - 0.25f;
+
+        square_2_coords[6] = topLayerCenter.x  + 0.25f;
+        square_2_coords[7] = topLayerCenter.y - 0.25f;
+
+        square_2_coords[9] = topLayerCenter.x + 0.25f;
+        square_2_coords[10] = topLayerCenter.y + 0.25f;
 
     }
 
