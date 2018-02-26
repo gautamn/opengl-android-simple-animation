@@ -125,6 +125,61 @@ public class Layer {
         GLES20.glDrawElements(GLES20.GL_TRIANGLES, drawOrder.length, GLES20.GL_UNSIGNED_SHORT, indexBuffer);
         GLES20.glDisableVertexAttribArray(mPositionHandle);
     }
+
+    public void drawLayer(float[] vertexCoord){
+
+        // Add program to OpenGL ES environment
+        GLES20.glUseProgram(shaderProgram);
+        mPositionHandle = GLES20.glGetAttribLocation(shaderProgram, "a_Position");
+        mTextureCoordinateHandle = GLES20.glGetAttribLocation(shaderProgram, "a_TexCoordinate");
+        mMVPMatrixHandle = GLES20.glGetUniformLocation(shaderProgram, "u_MVPMatrix");
+        mTextureUniformHandle = GLES20.glGetUniformLocation(shaderProgram, "u_Texture");
+
+        vertexBuffer = initFloatBuffer(vertexCoord);
+        vertexBuffer.position(0);
+        GLES20.glEnableVertexAttribArray(mPositionHandle);
+        GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT, false, vertexStride, vertexBuffer);
+
+
+
+        texCoordBuffer.position(0);
+        GLES20.glEnableVertexAttribArray(mTextureCoordinateHandle);
+        GLES20.glVertexAttribPointer(mTextureCoordinateHandle, mTextureCoordinateDataSize, GLES20.GL_FLOAT, false, 0,texCoordBuffer);
+
+         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureCoordinateHandle);
+        //GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMatrix, 0);
+        // Set color for drawing the triangle
+        GLES20.glUniform4fv(mTextureUniformHandle, 1, color, 0);
+        GLES20.glDrawElements(GLES20.GL_TRIANGLES, drawOrder.length, GLES20.GL_UNSIGNED_SHORT, indexBuffer);
+        GLES20.glDisableVertexAttribArray(mPositionHandle);
+
+
+
+
+      /*  // get handle to fragment shader's vColor member
+        mColorHandle = GLES20.glGetUniformLocation(mProgram, "vColor");
+
+        // Set color for drawing the triangle
+        GLES20.glUniform4fv(mColorHandle, 1, color, 0);
+
+        // Draw the triangle
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount);
+
+        // Disable vertex array
+        GLES20.glDisableVertexAttribArray(mPositionHandle);*/
+
+
+
+
+
+
+
+
+
+
+
+
+    }
 }
 
 

@@ -5,6 +5,7 @@ import android.graphics.PointF;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.util.Log;
 
 import com.lightx.opengltut.R;
 import com.lightx.opengltut.shape.Layer;
@@ -108,15 +109,21 @@ public class GestureMultiTouchRenderer implements GLSurfaceView.Renderer {
 
         mMVPMatrix = new float[16];
         if(actionType==1) translate(mMVPMatrix);
-        else if (actionType==2) rotate(mMVPMatrix);
+        else if (actionType==2){
+            //rotate(mMVPMatrix);
+            Matrix.setLookAtM(mViewMatrix, 0, 0, 0, 5f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+            Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
+        }
         else if(actionType==3) scale(mMVPMatrix);
         else if(actionType==-1){
             Matrix.setLookAtM(mViewMatrix, 0, 0, 0, 5f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
             Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
         }
         topLayer.draw(mMVPMatrix, square_2_coords);
+        //topLayer.drawLayer(square_2_coords);
     }
 
+    /*Translation*/
     public void changeVertexBuffer(float x, float y) {
 
         for(int i=0; i< square_2_coords.length; ){
@@ -130,43 +137,57 @@ public class GestureMultiTouchRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    public void changeVertexBuffer(PointF topLayerCenter, float dx, float dy) {
+    /*Rotation*/
+    public void changeVertexBuffer(float theta) {
 
-        square_2_coords[0] = (topLayerCenter.x + dx + 0.25f);
-        square_2_coords[1] = topLayerCenter.y + dy + 0.25f;
+        for(int i=0; i< square_2_coords.length; ){
+            //square_2_coords[i] = (float) (square_2_coords[i]*Math.cos(theta) - square_2_coords[i+1]*Math.sin(theta));
+            square_2_coords[i] = (float) (Double.valueOf(square_2_coords[i])*Math.cos(theta) - Double.valueOf(square_2_coords[i+1])*Math.sin(theta));
+            Log.d("X", "i="+i+"  square_2_coords[i]="+ square_2_coords[i]);
+            i = i + 3;
+        }
 
-        square_2_coords[3] = topLayerCenter.x + dx + 0.25f;
-        square_2_coords[4] = topLayerCenter.y + dy + 0.25f;
-
-        square_2_coords[6] = topLayerCenter.x + dx + 0.25f;
-        square_2_coords[7] = topLayerCenter.y + dy + 0.25f;
-
-        square_2_coords[9] = topLayerCenter.x + dx + 0.25f;
-        square_2_coords[10] = topLayerCenter.y + dy + 0.25f;
-
+        for(int i=1; i< square_2_coords.length; ){
+            //square_2_coords[i] = (float) (square_2_coords[i-1]*Math.sin(theta) + square_2_coords[i]*Math.cos(theta));
+            square_2_coords[i] = (float) (Double.valueOf(square_2_coords[i-1])*Math.sin(theta) + Double.valueOf(square_2_coords[i])*Math.cos(theta));
+            Log.d("Y", "i="+i+"  square_2_coords[i]="+ square_2_coords[i]);
+            i = i + 3;
+        }
     }
 
-    public void changeVertexBufferBasedOnCenter(PointF topLayerCenter) {
+    private static final float X_SCALE_FACTOR = 1080;
+    private static final float Y_SCALE_FACTOR = 1920;
 
-        square_2_coords[0] = (topLayerCenter.x - 0.25f);
-        square_2_coords[1] = topLayerCenter.y + 0.25f;
+    public void changeVertexBufferBasedOnScaleFactor(float scaleFactor) {
 
-        square_2_coords[3] = topLayerCenter.x - 0.25f;
-        square_2_coords[4] = topLayerCenter.y - 0.25f;
+        for(int i=0; i< square_2_coords.length; ){
+            if(square_2_coords[i]*scaleFactor<-1 || square_2_coords[i]*scaleFactor>1)
+                return;
+            square_2_coords[i] = square_2_coords[i]*scaleFactor;
+            Log.d("vertex buffer", "square_2_coords"+square_2_coords[i]);
+            i = i + 3;
+        }
 
-        square_2_coords[6] = topLayerCenter.x  + 0.25f;
-        square_2_coords[7] = topLayerCenter.y - 0.25f;
-
-        square_2_coords[9] = topLayerCenter.x + 0.25f;
-        square_2_coords[10] = topLayerCenter.y + 0.25f;
-
+        for(int i=1; i< square_2_coords.length; ){
+            if(square_2_coords[i]*scaleFactor<-1 || square_2_coords[i]*scaleFactor>1)
+                return;
+            square_2_coords[i] = square_2_coords[i]*scaleFactor;
+            i = i + 3;
+        }
     }
+
+    private PointF rotationPoint = new PointF(0,0);
 
     public void rotate(float[] mMVPMatrix){
+
+      /*  Matrix.setLookAtM(mViewMatrix, 0, 0, 0, 5f, rotationPoint.x, rotationPoint.y, 0f, 0f, 1.0f, 0.0f);
+        Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
+        Matrix.setRotateM(mRotationMatrix, 0, mAngle, 0, 0, 1f);
+        Matrix.multiplyMM(mMVPMatrix, 0, mMVPMatrix, 0, mRotationMatrix, 0);
+       */
+
         Matrix.setLookAtM(mViewMatrix, 0, 0, 0, 5f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
-        Matrix.setRotateM(mRotationMatrix, 0, mAngle, 0, 0, 1.0f);
-        Matrix.multiplyMM(mMVPMatrix, 0, mMVPMatrix, 0, mRotationMatrix, 0);
     }
 
     public void translate(float[] mMVPMatrix){
