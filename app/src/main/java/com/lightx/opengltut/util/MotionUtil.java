@@ -40,7 +40,7 @@ public class MotionUtil {
         return (float) Math.sqrt(x * x + y * y);
     }
 
-    private float disTanceBetweenTwoPoints(float x, float y, float xPrev, float yPrev) {
+    public static float disTanceBetweenTwoPoints(float x, float y, float xPrev, float yPrev) {
 
         return (float) Math.sqrt(Math.abs(x - xPrev) * Math.abs(x - xPrev) + Math.abs(y - yPrev) * Math.abs(y - yPrev));
     }
@@ -68,6 +68,15 @@ public class MotionUtil {
     }
 
     public static float disTanceBetweenTwoSides(float dx, float dy) {
+
+        return (float) Math.sqrt(dx*dx + dy*dy);
+    }
+
+
+    public static float disTanceBetweenTwoPoints(PointF firstPoint, PointF secondPoint) {
+
+        float dx = secondPoint.x - firstPoint.x;
+        float dy = secondPoint.y - firstPoint.y;
 
         return (float) Math.sqrt(dx*dx + dy*dy);
     }

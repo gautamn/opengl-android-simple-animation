@@ -140,19 +140,24 @@ public class GestureMultiTouchRenderer implements GLSurfaceView.Renderer {
     /*Rotation*/
     public void changeVertexBuffer(float theta) {
 
+        //x'=x\cos \theta +y\sin \theta }
+        //y'=-x\sin \theta +y\cos \theta .} {\displaystyle y'=-x\sin \theta +y\cos \theta .}
+
+        //theta = (float) Math.PI;
+
+        float tmp_coords[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
         for(int i=0; i< square_2_coords.length; ){
-            //square_2_coords[i] = (float) (square_2_coords[i]*Math.cos(theta) - square_2_coords[i+1]*Math.sin(theta));
-            square_2_coords[i] = (float) (Double.valueOf(square_2_coords[i])*Math.cos(theta) - Double.valueOf(square_2_coords[i+1])*Math.sin(theta));
-            Log.d("X", "i="+i+"  square_2_coords[i]="+ square_2_coords[i]);
+            tmp_coords[i] = (float) (Double.valueOf(square_2_coords[i])*Math.cos(theta) + Double.valueOf(square_2_coords[i+1])*Math.sin(theta));
             i = i + 3;
         }
 
         for(int i=1; i< square_2_coords.length; ){
-            //square_2_coords[i] = (float) (square_2_coords[i-1]*Math.sin(theta) + square_2_coords[i]*Math.cos(theta));
-            square_2_coords[i] = (float) (Double.valueOf(square_2_coords[i-1])*Math.sin(theta) + Double.valueOf(square_2_coords[i])*Math.cos(theta));
-            Log.d("Y", "i="+i+"  square_2_coords[i]="+ square_2_coords[i]);
+            tmp_coords[i] = (float) (-Double.valueOf(square_2_coords[i-1])*Math.sin(theta) + Double.valueOf(square_2_coords[i])*Math.cos(theta));
             i = i + 3;
         }
+
+        square_2_coords = tmp_coords;
     }
 
     private static final float X_SCALE_FACTOR = 1080;
@@ -160,19 +165,23 @@ public class GestureMultiTouchRenderer implements GLSurfaceView.Renderer {
 
     public void changeVertexBufferBasedOnScaleFactor(float scaleFactor) {
 
+        //scaleFactor = 1;
+        float tmp_coords[] = square_2_coords;
+
         for(int i=0; i< square_2_coords.length; ){
             if(square_2_coords[i]*scaleFactor<-1 || square_2_coords[i]*scaleFactor>1)
                 return;
-            square_2_coords[i] = square_2_coords[i]*scaleFactor;
-            Log.d("vertex buffer", "square_2_coords"+square_2_coords[i]);
+            tmp_coords[i] = square_2_coords[i]*scaleFactor;
             i = i + 3;
         }
 
         for(int i=1; i< square_2_coords.length; ){
             if(square_2_coords[i]*scaleFactor<-1 || square_2_coords[i]*scaleFactor>1)
                 return;
-            square_2_coords[i] = square_2_coords[i]*scaleFactor;
+            tmp_coords[i] = square_2_coords[i]*scaleFactor;
             i = i + 3;
+
+            square_2_coords = tmp_coords;
         }
     }
 

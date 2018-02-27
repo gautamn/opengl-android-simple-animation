@@ -8,17 +8,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
-import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.view.View;
 
 import com.lightx.opengltut.renderer.GestureMultiTouchRenderer;
-import com.lightx.opengltut.renderer.SlidingLayerMultiTouchRenderer;
 import com.lightx.opengltut.util.MotionUtil;
+import com.lightx.opengltut.util.RotationGestureDetector;
 
-public class GestureActivity extends Activity {
+public class MultiTouchGestureActivity extends Activity {
 
     private GLSurfaceView mGLView;
-
     private static final int NONE = 0;
     private static final int DRAG = 1;
     private static final int ZOOM = 2;
@@ -26,15 +24,13 @@ public class GestureActivity extends Activity {
     private PointF start = new PointF();
     private PointF mid = new PointF();
     private float oldDist = 1f;
-    private float d = 0f;
-    private float newRot = 0f;
-    private float[] lastEvent = null;
-    private float lastScale = 0;
-    private float lastTheta = 0;//------------------>
-    private float fX, fY, sX, sY, focalX, focalY;
-
+    private float fX, fY, sX, sY;
     private ScaleGestureDetector mScaleDetector;
+    private RotationGestureDetector mRotationDetector;
     private float mScaleFactor = 1.f;
+    private final float X_SCALE_FACTOR = 1080;
+    private final float Y_SCALE_FACTOR = 1920;
+    private final float TOUCH_SCALE_FACTOR = 180.0f / 320;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -43,10 +39,9 @@ public class GestureActivity extends Activity {
         setContentView(mGLView);
     }
 
-    class MyGLSurfaceView extends GLSurfaceView {
+    class MyGLSurfaceView extends GLSurfaceView implements RotationGestureDetector.OnRotationGestureListener {
 
-        private final GestureMultiTouchRenderer mRenderer;
-
+        private GestureMultiTouchRenderer mRenderer;
 
         public MyGLSurfaceView(Context context) {
             super(context);
@@ -54,86 +49,68 @@ public class GestureActivity extends Activity {
             mRenderer = new GestureMultiTouchRenderer(context);
             setRenderer(mRenderer);
             mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+            mRotationDetector = new RotationGestureDetector(this, this);
         }
-
-        private final float X_SCALE_FACTOR = 1080;
-        private final float Y_SCALE_FACTOR = 1920;
-        private final float TOUCH_SCALE_FACTOR = 180.0f / 320;
-        private float mPreviousX = 0;
-        private float mPreviousY = 0;
-        private float lastAngle = 0;
-        /*private boolean isZoomEnabled = false;*/
 
         @Override
         public boolean onTouchEvent(MotionEvent e) {
 
             mScaleDetector.onTouchEvent(e);
-            float x = e.getX();
-            float y = e.getY();
+            mRotationDetector.onTouchEvent(e);
 
             switch (e.getAction() & MotionEvent.ACTION_MASK) {
 
                 case MotionEvent.ACTION_DOWN:
-                  /*  Log.d("Gesture Activity", "On action down event");
-                    start.set(x, y);
+                    Log.d("Gesture Activity", "On action down event");
                     sX = e.getX();
                     sY = e.getY();
-                    mode = DRAG;*/
+                    start.set(sX, sY);
+                    mode = DRAG;
                     break;
 
                 case MotionEvent.ACTION_POINTER_DOWN:
-
-                   /* fX = e.getX();
+                    fX = e.getX();
                     fY = e.getY();
                     Log.d("Gesture Activity", "On action pointer down event");
                     oldDist = MotionUtil.spacingBetweenFingers(e);
                     if (oldDist > 10f) {
-                        //MotionUtil.midPoint(mid, e);
+                        MotionUtil.midPoint(mid, e);
                         mode = ZOOM;
                     }
-                    lastEvent = new float[4];
-                    lastEvent[0] = e.getX(0);
-                    lastEvent[1] = e.getX(1);
-                    lastEvent[2] = e.getY(0);
-                    lastEvent[3] = e.getY(1);
-                    d = MotionUtil.rotation(e);*/
                     break;
 
                 case MotionEvent.ACTION_MOVE: {
-
-                    //float dx = (e.getX() - start.x) * 2 / X_SCALE_FACTOR;
-                    //float dy = (e.getY() - start.y) * 2 / Y_SCALE_FACTOR;
-                   // Log.d("Gesture Activity", "On action move event" + " dx=" + dx + " dy=" + dy);
-                   // if (mode == DRAG && MotionUtil.disTanceBetweenTwoSides(dx, dy) > 0) {
-                   //     mRenderer.actionType = 1;
-                   //     mRenderer.changeVertexBuffer(dx, -dy);
-                   //     Log.d("GestureActivity", "Rendering drag...");
-                   //     requestRender();
-                   //     start.set(x, y);
-                  //  } else if (mode == ZOOM) {
-                       // float newDist = MotionUtil.spacingBetweenFingers(e);
-                        //mScaleFactor = 1;
-                        //Log.d("Scale", "mscaleFactor==" + mScaleFactor+" newDist="+newDist);
+                    float dx = (e.getX() - start.x) * 2 / X_SCALE_FACTOR;
+                    float dy = (e.getY() - start.y) * 2 / Y_SCALE_FACTOR;
+                    Log.d("Touch", "mRotationDetector.getAngle()=" + mRotationDetector.getAngle());
+                    if (mode == DRAG && MotionUtil.disTanceBetweenTwoSides(dx, dy) > 0) {
+                        mRenderer.actionType = 1;
+                        mRenderer.changeVertexBuffer(dx, -dy);
+                        Log.d("GestureActivity", "Rendering drag...");
+                        requestRender();
+                        start.set(e.getX(), e.getY());
+                    } else if (mode == ZOOM) {
                         mRenderer.actionType = 3;
                         mRenderer.changeVertexBufferBasedOnScaleFactor(mScaleFactor);
-                        //lastScale = mScaleFactor;
                         requestRender();
-                        /*if (lastEvent != null && e.getPointerCount() == 2) {
+                        if (e.getPointerCount() == 2) {
                             float nfX, nfY, nsX, nsY;
                             nfX = e.getX(e.getPointerId(0));
                             nfY = e.getY(e.getPointerId(0));
                             nsX = e.getX(e.getPointerId(1));
                             nsY = e.getY(e.getPointerId(1));
-                            float angle = MotionUtil.angleBetweenLines(fX, fY, sX, sY, nfX, nfY, nsX, nsY);
-                            mRenderer.actionType = 2;
-                            mRenderer.changeVertexBuffer(angle / 1000);
-                            //requestRender();
+
+                            if (MotionUtil.disTanceBetweenTwoPoints(nfX, nfY, fX, fY) > 0 && MotionUtil.disTanceBetweenTwoPoints(nsX, nsY, sX, sY) > 0) {
+                                mRenderer.actionType = 2;
+                                mRenderer.changeVertexBuffer(mRotationDetector.getAngle() % 360);
+                                requestRender();
+                            }
                             fX = nfX;
                             fY = nfY;
                             sX = nfX;
                             sY = nfY;
-                        }*/
-                 //   }
+                        }
+                    }
                 }
                 break;
                 case MotionEvent.ACTION_POINTER_UP:
@@ -144,9 +121,14 @@ public class GestureActivity extends Activity {
                     break;
             }
 
-            mPreviousX = x;
-            mPreviousY = y;
             return true;
+        }
+
+        @Override
+        public void onRotation(RotationGestureDetector rotationDetector) {
+
+            float angle = rotationDetector.getAngle();
+            Log.d("RotationGestureDetector", "Rotation: " + Float.toString(angle));
         }
     }
 
@@ -162,5 +144,6 @@ public class GestureActivity extends Activity {
             mGLView.invalidate();
             return true;
         }
-    }
+    }/*class*/
+
 }
